@@ -119,7 +119,6 @@ function defaultOptions(options: Partial<Options>): Options {
 
 export class TreeMap {
   readonly options: Options;
-  container?: HTMLElement;
   constructor(public node: Node, options: Partial<Options>) {
     this.options = defaultOptions(options);
   }
@@ -292,8 +291,9 @@ export class TreeMap {
    */
   render(container: HTMLElement) {
     // addCSS(container);
-    this.container = container;
     const dom = this.ensureDOM(this.node);
+    const width = container.offsetWidth;
+    const height = container.offsetHeight;
     dom.onclick = e => {
       let node: Element | null = e.target as Element;
       while (!isDOMNode(node)) {
@@ -303,17 +303,9 @@ export class TreeMap {
       let address = getAddress(node);
       this.zoom(address);
     };
-    container.appendChild(dom);
-    this.layout();
-  }
-
-  layout() {
-    const dom = this.ensureDOM(this.node);
-    if (!this.container) return;
-    const width = this.container.offsetWidth;
-    const height = this.container.offsetHeight;
     dom.style.width = width + 'px';
     dom.style.height = height + 'px';
+    container.appendChild(dom);
     this.layoutChildren(this.node, 0, width, height);
   }
 
