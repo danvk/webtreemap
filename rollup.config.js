@@ -2,8 +2,8 @@ export default {
   input: 'build/index.js',
   output: {
     format: 'iife',
-    name: 'Treemap',
+    name: 'webtreemap',
     file: 'dist/webtreemap.js',
-    sourcemap: true,
+    // sourcemap: true,
   },
 }
