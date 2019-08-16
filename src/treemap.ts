@@ -292,8 +292,6 @@ export class TreeMap {
   render(container: HTMLElement) {
     // addCSS(container);
     const dom = this.ensureDOM(this.node);
-    const width = container.offsetWidth;
-    const height = container.offsetHeight;
     dom.onclick = e => {
       let node: Element | null = e.target as Element;
       while (!isDOMNode(node)) {
@@ -303,9 +301,17 @@ export class TreeMap {
       let address = getAddress(node);
       this.zoom(address);
     };
-    dom.style.width = width + 'px';
-    dom.style.height = height + 'px';
     container.appendChild(dom);
+    this.layout(this.node, container);
+  }
+
+
+  layout(node: Node, container: HTMLElement) {
+    const width = container.offsetWidth;
+    const height = container.offsetHeight;
+
+    node.dom!.style.width = `${width}px`;
+    node.dom!.style.height = `${height}px`;
     this.layoutChildren(this.node, 0, width, height);
   }
 
