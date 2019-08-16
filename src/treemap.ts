@@ -19,33 +19,6 @@ import {Node} from './tree';
 const CSS_PREFIX = 'webtreemap-';
 const NODE_CSS_CLASS = CSS_PREFIX + 'node';
 
-const DEFAULT_CSS = `
-.webtreemap-node {
-  cursor: pointer;
-  position: absolute;
-  border: solid 1px #666;
-  box-sizing: border-box;
-  overflow: hidden;
-  background: white;
-  transition: left .15s, top .15s, width .15s, height .15s;
-}
-
-.webtreemap-node:hover {
-  background: #ddd;
-}
-
-.webtreemap-caption {
-  font-size: 10px;
-  text-align: center;
-}
-`;
-
-function addCSS(parent: HTMLElement) {
-  const style = document.createElement('style');
-  style.textContent = DEFAULT_CSS;
-  parent.appendChild(style);
-}
-
 export function isDOMNode(e: Element): boolean {
   return e.classList.contains(NODE_CSS_CLASS);
 }
@@ -290,7 +263,6 @@ export class TreeMap {
    * The treemap is sized to the size of the container.
    */
   render(container: HTMLElement) {
-    // addCSS(container);
     const dom = this.ensureDOM(this.node);
     dom.onclick = e => {
       let node: Element | null = e.target as Element;

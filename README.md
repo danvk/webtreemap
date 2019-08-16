@@ -24,6 +24,9 @@ described at the top of [tree.ts].
 
 [tree.ts]: https://github.com/evmar/webtreemap/blob/master/src/tree.ts
 
+
+Add the contents of [src/styles-to-add.css] to your stylesheets.
+
 ```html
 <script src='webtreemap.js'></script>
 <script>
