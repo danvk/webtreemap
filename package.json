@@ -21,7 +21,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "fmt": "prettier --write src/*.ts demo/*.ts *.md",
     "build": "tsc && webpack -p",
-    "demo": "du -ab node_modules/ | node build/src/cli.js --title 'node_modules for webtreemap' > docs/index.html",
+    "demo": "gdu -ab node_modules/ | node build/src/cli.js --title 'node_modules for webtreemap' > docs/index.html",
     "doit": "yarn build; gcp -f build/webtreemap.js ~/chromium/src/third_party/blink/renderer/devtools/front_end/webtreemap/webtreemap.js"
   },
   "files": [
