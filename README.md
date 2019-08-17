@@ -1,19 +1,6 @@
 # webtreemap
 
-> **New 2017-Oct-16**: master is now webtreemap v2, a complete rewrite with
-> bug fixes, more features, and a different (simpler) API. If you're looking
-> for the old webtreemap, see the [v1] branch.
-
-[v1]: https://github.com/evmar/webtreemap/tree/v1
-
-A simple treemap implementation using web technologies (DOM nodes, CSS styling
-and transitions) rather than a big canvas/svg/plugin. It's usable as a library
-as part of a larger web app, but it also includes a command-line app that dumps
-a self-contained HTML file that displays a map.
-
-Play with a [demo].
-
-[demo]: http://evmar.github.io/webtreemap/
+Fork of https://github.com/evmar/webtreemap
 
 ## Usage
 
@@ -36,38 +23,6 @@ const container = document.getElementById('myContainer');
 webtreemap.render(container, data, options);
 ```
 
-### Command line
-
-Install with
-
-```sh
-$ npm i webtreemap
-```
-
-Then run with:
-
-```sh
-$ webtreemap -o output_file < my_data
-```
-
-Input data format is space-separated lines of "size path", where size
-is a number and path is a '/'-delimited path. For example:
-
-```sh
-$ cat my_data
-100 all
-50 all/thing1
-25 all/thing2
-```
-
-This is exactly the output produced by `du`, so this works:
-
-```sh
-$ du -ab some_path | webtreemap -o out.html
-```
-
-But note that there's nothing file-system-specific about the data format -- it
-just uses slash as a nesting delimiter.
 
 ## Development
 
@@ -81,13 +36,8 @@ To build everything, run `yarn run build`.
 
 To hack on webtreemap, the pieces of the build are:
 
-1.  `yarn run tsc` builds all the `.ts` files;
-2.  `yarn run webpack` builds the UMD web version from JS of the above.
+1. `yarn run build` builds all the `.ts` files and runs rollup
 
-Because command line embeds the web version in its output, you need to
-run step 2 before running the output of step 1. Also note we
-intentionally don't use webpack's ts-loader because we want the
-TypeScript output for the command-line app.
 
 ### Command line app
 

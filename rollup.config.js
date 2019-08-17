@@ -9,6 +9,6 @@ export default {
     // sourcemap: true,
   },
   plugins: [
-    banner('webtreemap-cdt v<%= pkg.version %>')
+    banner('webtreemap-cdt\nv<%= pkg.version %>\n<%= pkg.homepage %>')
   ]
 }

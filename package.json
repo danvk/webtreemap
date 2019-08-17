@@ -1,6 +1,6 @@
 {
-  "name": "webtreemap",
-  "version": "2.0.1",
+  "name": "webtreemap-cdt",
+  "version": "3.0.0",
   "description": "treemap visualization",
   "main": "build/src/index.js",
   "bin": {
@@ -31,7 +31,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/evmar/webtreemap.git"
+    "url": "git+https://github.com/paulirish/webtreemap-cdt.git"
   },
   "keywords": [
     "treemap",
@@ -40,9 +40,9 @@
   "author": "Evan Martin <evan.martin@gmail.com>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/evmar/webtreemap/issues"
+    "url": "https://github.com/paulirish/webtreemap-cdt/issues"
   },
-  "homepage": "https://github.com/evmar/webtreemap#readme",
+  "homepage": "https://github.com/paulirish/webtreemap-cdt",
   "prettier": {
     "singleQuote": true,
     "trailingComma": "es5",
