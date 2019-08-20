@@ -107,7 +107,8 @@ async function main() {
                    .option('--title [string]', 'title of output HTML')
                    .parse(process.argv);
   const node = treeFromLines(await readLines());
-  const treemapJS = await readFile(__dirname + '/../webtreemap.js');
+  const treemapJS = await readFile(__dirname + '/../dist/webtreemap.js');
+  const treemapCSS = await readFile(__dirname + '/../src/styles-to-add.css');
   const title = args.title || 'webtreemap';
 
   let output = `<!doctype html>
@@ -120,6 +121,7 @@ body {
   width: 800px;
   height: 600px;
 }
+${treemapCSS}
 </style>
 <div id='treemap'></div>
 <script>const data = ${JSON.stringify(node)}</script>
