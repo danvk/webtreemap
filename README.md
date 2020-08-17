@@ -46,26 +46,15 @@ webtreemap.render(container, data, options);
 
 ## Development
 
-The modules of webtreemap can be used both from the web and from the command
+~The modules of webtreemap can be used both from the web and from the command
 line, so the build has two layers. The command line app embeds the output
-of the build into its output so it's a bit confusing.
+of the build into its output so it's a bit confusing.~
 
-To build everything, run `yarn run build`.
+I broke the CLI. Only working output is the dist/webtreemap.js now.
 
-### Build layout
-
-To hack on webtreemap, the pieces of the build are:
-
-1. `yarn run build` builds all the `.ts` files and runs rollup
+Run `yarn run build` to compile TS -> build/JS with tsc and run rollup to make the dist.
 
 
-### Command line app
-
-Use `yarn run tsc -w` to keep the npm-compatible JS up to date, then run e.g.:
-
-```sh
-$ du -ab node_modules/ | node build/src/cli.js --title 'node_modules usage' -o demo.html
-```
 
 ## License
 
