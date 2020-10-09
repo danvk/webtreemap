@@ -28,6 +28,7 @@ export function isDOMNode(e: Element): boolean {
  */
 export interface Options {
   padding: [number, number, number, number];
+  spacing: number;
   lowerBound: number;
   applyMutations(node: Node): void,
   caption(node: Node): string;
@@ -77,6 +78,7 @@ function px(x: number): string {
 function defaultOptions(options: Partial<Options>): Options {
   const opts = {
     padding: options.padding || [14, 3, 3, 3],
+    spacing: options.spacing || 0,
     lowerBound: options.lowerBound === undefined ? 0.1 : options.lowerBound,
     applyMutations: options.applyMutations || (() => null),
     caption: options.caption || ((node: Node) => node.id || ''),
@@ -200,7 +202,7 @@ export class TreeMap {
       x2 = width - 1,
       y2 = height - 1;
 
-    const spacing = 0; // TODO: this.options.spacing;
+    const spacing = this.options.spacing;
     const padding = this.options.padding;
     y1 += padding[0];
     if (padding[1]) {
