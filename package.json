@@ -4,7 +4,7 @@
   "description": "treemap visualization",
   "main": "dist/webtreemap.js",
   "bin": {
-    "webtreemap": "build/src/cli.js"
+    "webtreemap": "build/cli.js"
   },
   "dependencies": {
     "commander": "^2.11.0"
