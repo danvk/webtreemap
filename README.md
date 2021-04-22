@@ -60,3 +60,8 @@ Run `yarn run build` to compile TS -> build/JS with tsc and run rollup to make t
 
 webtreemap is licensed under the Apache License v2.0. See `LICENSE.txt` for the
 complete license text.
+
+## Also
+
+* I like the breadcrumb navigation in the plotly treemap. https://plotly.com/javascript/treemaps/ 
+* The _imported path_ in [rollup-plugin-visualizer](https://github.com/btd/rollup-plugin-visualizer) is nice, but the interation aint. [eg1](https://obeisant-horses.surge.sh/stats.html), [eg2](https://obeisant-horses.surge.sh/stats-old-rxjs.html)
