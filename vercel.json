@@ -2,6 +2,5 @@
   "version": 2,
   "github": {
     "silent": true
-  },
-  "build": "yarn run build:demo"
+  }
 }
