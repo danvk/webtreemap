@@ -21,7 +21,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "fmt": "prettier --write src/*.ts demo/*.ts *.md",
     "build": "tsc && rollup -c",
-    "demo": "gdu -ab node_modules/ | node build/cli.js --title 'node_modules for webtreemap' > docs/index.html",
+    "demo": "mkdir -p public; du -a node_modules/ | node build/cli.js --title 'node_modules for webtreemap' > public/index.html",
+    "build:demo": "yarn build && yarn tsc --module commonjs && yarn demo",
+    "watch": "find src | entr yarn build:demo",
+    "clean": "rm -rf build dist public",
     "roll": "yarn build; gcp -f dist/webtreemap.js ~/chromium/src/third_party/third_party/devtools-frontend/src/front_end/third_party/webtreemap/webtreemap.js"
   },
   "files": [

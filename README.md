@@ -50,11 +50,11 @@ webtreemap.render(container, data, options);
 line, so the build has two layers. The command line app embeds the output
 of the build into its output so it's a bit confusing.~
 
-I broke the CLI. Only working output is the dist/webtreemap.js now.
+Run `yarn run build` to compile TS -> build/JS (as esm) and then run rollup to make the dist (iife).
 
-Run `yarn run build` to compile TS -> build/JS with tsc and run rollup to make the dist.
+Run `yarn run build:demo` to create a `public/index.html` demo page.
 
-
+Run `yarn watch` to use `entr` to do _`build:demo`_ on a watchloop.
 
 ## License
 
@@ -63,5 +63,5 @@ complete license text.
 
 ## Also
 
-* I like the breadcrumb navigation in the plotly treemap. https://plotly.com/javascript/treemaps/ 
+* I like the breadcrumb navigation in the plotly treemap. https://plotly.com/javascript/treemaps/
 * The _imported path_ in [rollup-plugin-visualizer](https://github.com/btd/rollup-plugin-visualizer) is nice, but the interation aint. [eg1](https://obeisant-horses.surge.sh/stats.html), [eg2](https://obeisant-horses.surge.sh/stats-old-rxjs.html)
