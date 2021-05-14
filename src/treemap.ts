@@ -19,7 +19,7 @@ import {Node} from './tree';
 const CSS_PREFIX = 'webtreemap-';
 const NODE_CSS_CLASS = CSS_PREFIX + 'node';
 
-export function isDOMNode(e: Element): boolean {
+export function isDOMNode(e: HTMLElement): boolean {
   return e.classList.contains(NODE_CSS_CLASS);
 }
 
@@ -40,10 +40,10 @@ export interface Options {
  * get the index of this node in its parent's children list.
  * O(n) but we expect n to be small.
  */
-function getNodeIndex(target: Element): number {
+function getNodeIndex(target: HTMLElement): number {
   let index = 0;
-  let node: Element | null = target;
-  while ((node = node.previousElementSibling)) {
+  let node: HTMLElement | null = target;
+  while ((node = node.previousElementSibling as HTMLElement)) {
     if (isDOMNode(node)) index++;
   }
   return index;
@@ -54,9 +54,9 @@ function getNodeIndex(target: Element): number {
  * into the Node tree.  An address [a1,a2,...] refers to
  * tree.chldren[a1].children[a2].children[...].
  */
-export function getAddress(el: Element): number[] {
+export function getAddress(el: HTMLElement): number[] {
   let address: number[] = [];
-  let n: Element | null = el;
+  let n: HTMLElement | null = el;
   while (n && isDOMNode(n)) {
     address.unshift(getNodeIndex(n));
     n = n.parentElement;
@@ -107,10 +107,12 @@ export class TreeMap {
     if (node.dom) return node.dom;
     const dom = document.createElement('div');
     dom.className = NODE_CSS_CLASS;
+    dom.setAttribute('role', 'treeitem');
+    dom.tabIndex = -1;
     if (this.options.caption) {
       const caption = document.createElement('div');
       caption.className = CSS_PREFIX + 'caption';
-      caption.innerText = this.options.caption(node);
+      caption.textContent = this.options.caption(node);
       dom.appendChild(caption);
     }
     node.dom = dom;
@@ -242,10 +244,12 @@ export class TreeMap {
           style.width = px(widthPx - spacing);
           style.top = px(y);
           style.height = px(heightPx - spacing);
+          dom.setAttribute('aria-level', (level + 1).toString());
           if (needsAppend) {
             node.dom!.appendChild(dom);
           }
 
+          this.associateCaptionWithLabelledBy(dom);
           this.layoutChildren(child, level + 1, widthPx, heightPx);
 
           // -1 so inner borders overlap.
@@ -272,7 +276,7 @@ export class TreeMap {
   render(container: HTMLElement) {
     const dom = this.ensureDOM(this.node);
     dom.onclick = e => {
-      let node: Element | null = e.target as Element;
+      let node: HTMLElement | null = e.target as HTMLElement;
       while (!isDOMNode(node)) {
         node = node.parentElement;
         if (!node) return;
@@ -280,10 +284,56 @@ export class TreeMap {
       let address = getAddress(node);
       this.zoom(address);
     };
+    dom.onkeydown = e => {
+      if (!(e.target instanceof HTMLElement)) return;
+
+      let elem;
+      switch (e.key) {
+        // zoom to selection
+        case 'Enter':
+          const address = getAddress(e.target);
+          this.zoom(address);
+          return;
+
+        // move selection focus
+        case 'ArrowUp':
+          elem = e.target.parentElement;
+          // You cannot 'up' past the root
+          if (elem === dom.parentElement) return;
+          break;
+        case 'ArrowDown':
+          elem = e.target.querySelector('.webtreemap-node');
+          break;
+        case 'ArrowLeft':
+          elem = e.target.previousElementSibling;
+          break;
+        case 'ArrowRight':
+          elem = e.target.nextElementSibling;
+          break;
+      }
+      if (!elem) return;
+      elem = elem as HTMLElement; // lol
+
+      // Reset tabIndex as we have a new focused item
+      const tabIndex0Elems = Array.from(dom!.querySelectorAll('*[tabindex="0"]')) as HTMLElement[];
+      for (const elem of tabIndex0Elems) {
+        elem.tabIndex = -1;
+      }
+
+      e.preventDefault();
+      elem.tabIndex = 0; // most recently focused element should retain focusability
+      elem.focus();
+    };
+
     container.appendChild(dom);
     this.layout(this.node, container);
-  }
 
+    // initialize root node
+    this.associateCaptionWithLabelledBy(dom);
+    dom.tabIndex = 0;
+    dom.setAttribute('role', 'tree');
+    // calling elem.focus() on initial render isn't done here and is up to the library consumer.
+  }
 
   layout(node: Node, container: HTMLElement) {
     const width = container.offsetWidth;
@@ -315,6 +365,8 @@ export class TreeMap {
       node = node.children[index];
       const style = node.dom!.style;
       style.zIndex = '1';
+      // TODO, tabindex 0 follows focus as the user moves around https://github.com/paulirish/webtreemap-cdt/pull/1#discussion_r316867244
+      // ...
       // See discussion in layout() about positioning.
       style.left = px(padLeft - 1);
       style.width = px(width);
@@ -322,6 +374,12 @@ export class TreeMap {
       style.height = px(height);
     }
     this.layoutChildren(node, 0, width, height);
+  }
+
+  private associateCaptionWithLabelledBy(dom: HTMLElement) {
+    const captionId = '_wtm-cap-' + getAddress(dom).join('-');
+    dom.firstElementChild!.id = captionId;
+    dom.setAttribute('aria-labelledby', captionId);
   }
 }
 

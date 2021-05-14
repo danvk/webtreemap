@@ -4,7 +4,7 @@
   border: solid 1px #666;
   box-sizing: border-box;
   overflow: hidden;
-  background: white;
+  background: #f5f5f5;
   transition: left .15s, top .15s, width .15s, height .15s;
 }
 
@@ -13,6 +13,17 @@
 }
 
 .webtreemap-caption {
-  font-size: 10px;
+  font-size: 11px;
   text-align: center;
+}
+
+.webtreemap-node:focus {
+  border-color: hsla(215, 100%, 48%, 0.247);
+  background: #fff; /*  hsl(240, 100%, 96%); */
+  font-weight: bold;
+}
+
+.webtreemap-node:focus .webtreemap-node {
+  background: #fff;
+  font-weight: normal;
 }

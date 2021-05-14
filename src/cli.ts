@@ -84,6 +84,7 @@ function sizeCaption(n: tree.Node): string {
   return `${n.id || ''} (${n.size})`;
 }
 
+// TODO: update to use either SI units or Kibibytes
 function humanSizeCaption(n: tree.Node): string {
   let units = ['', 'k', 'm', 'g'];
   let unit = 0;
@@ -111,6 +112,16 @@ async function main() {
   const treemapCSS = await readFile(__dirname + '/../src/styles-to-add.css');
   const title = args.title || 'webtreemap';
 
+  let inlineScript = `
+  const data = ${JSON.stringify(node)};
+  const container = document.getElementById("treemap");
+  const treemap = new webtreemap.TreeMap(data, {
+    caption: ${humanSizeCaption},
+  });
+  treemap.render(container);
+  const resizeObserver = new ResizeObserver(() => treemap.layout(data, container));
+  resizeObserver.observe(container);
+  `;
   let output = `<!doctype html>
 <title>${title}</title>
 <style>
@@ -118,17 +129,17 @@ body {
   font-family: sans-serif;
 }
 #treemap {
-  width: 800px;
-  height: 600px;
+  width: 95vw;
+  max-width: 1300px;
+  height: 80vh;
 }
 ${treemapCSS}
 </style>
 <div id='treemap'></div>
-<script>const data = ${JSON.stringify(node)}</script>
 <script>${treemapJS}</script>
-<script>webtreemap.render(document.getElementById("treemap"), data, {
-  caption: ${humanSizeCaption},
-});</script>
+<script>
+  ${inlineScript}
+</script>
 `;
   if (args.output) {
     fs.writeFileSync(args.output, output, {encoding: 'utf-8'});
