@@ -1,6 +1,6 @@
 {
   "name": "webtreemap-cdt",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "treemap visualization",
   "main": "dist/webtreemap.js",
   "bin": {
