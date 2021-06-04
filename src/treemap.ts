@@ -312,6 +312,8 @@ export class TreeMap {
           break;
       }
       if (!elem) return;
+      // Don't shift focus to any captions or non-nodes
+      if (!elem.matches('.webtreemap-node')) return;
       elem = elem as HTMLElement; // lol
 
       // Reset tabIndex as we have a new focused item
