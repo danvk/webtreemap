@@ -1,4 +1,5 @@
 /build
+/build-node
 /node_modules
 /demo/demo.js
 /docs

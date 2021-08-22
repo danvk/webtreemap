@@ -15,8 +15,12 @@
  */
 
 import {Command} from 'commander';
-import * as fs from 'fs';
-import * as readline from 'readline';
+import {promises as fs} from 'fs';
+import crypto from 'crypto';
+import open from 'open';
+import os from 'os';
+import path from 'path';
+import readline from 'readline';
 
 import * as tree from './tree';
 
@@ -34,28 +38,40 @@ async function readLines() {
   });
 }
 
-/** Reads a file to a string. */
-async function readFile(path: string) {
-  return new Promise<string>((resolve, reject) => {
-    fs.readFile(path, {encoding: 'utf-8'}, (err, data) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve(data);
-    });
-  });
+/** Read an array of lines from a list of files */
+async function readLinesFromFiles(files: string[]) {
+  let lines: string[] = [];
+  for (const file of files) {
+    const contents = await fs.readFile(file, 'utf-8');
+    lines = lines.concat(contents.split('\n'));
+  }
+  return lines;
+}
+
+function parseLine(line: string): [string, number] {
+  if (line.match(/^\s*$/)) {
+    // Skip blank / whitespace-only lines
+    return ['', 0];
+  }
+
+  // Match (number)(whitespace)(path)
+  let m = line.match(/(\S+)\s+(.*)/);
+  if (m) {
+    const [, sizeStr, path] = m;
+    const size = Number(sizeStr);
+    if (isNaN(size)) {
+      throw new Error(`Unable to parse ${size} as a number in line: "${line}"`);
+    }
+    return [path, size];
+  }
+
+  // Assume it's (path)
+  return [line, 1];
 }
 
 /** Constructs a tree from an array of lines. */
 function treeFromLines(lines: string[]): tree.Node {
-  const data: Array<[string, number]> = [];
-  for (const line of lines) {
-    const [, sizeStr, path] = line.match(/(\S+)\s+(.*)/) || ['', '', ''];
-    const size = Number(sizeStr);
-    data.push([path, size]);
-  }
-  let node = tree.treeify(data);
+  let node = tree.treeify(lines.map(parseLine));
 
   // If there's a common empty parent, skip it.
   if (node.id === undefined && node.children && node.children.length === 1) {
@@ -76,14 +92,6 @@ function treeFromLines(lines: string[]): tree.Node {
   return node;
 }
 
-function plainCaption(n: tree.Node): string {
-  return n.id || '';
-}
-
-function sizeCaption(n: tree.Node): string {
-  return `${n.id || ''} (${n.size})`;
-}
-
 // TODO: update to use either SI units or Kibibytes
 function humanSizeCaption(n: tree.Node): string {
   let units = ['', 'k', 'm', 'g'];
@@ -94,6 +102,15 @@ function humanSizeCaption(n: tree.Node): string {
     unit++;
   }
   return `${n.id || ''} (${size.toFixed(1)}${units[unit]})`;
+}
+
+
+/** Write contents (utf-8 encoded) to a temp file, returning the path to the file. */
+async function writeToTempFile(contents: string): Promise<string> {
+  const randHex = crypto.randomBytes(4).readUInt32LE(0).toString(16);
+  const filename = path.join(os.tmpdir(), `webtreemap-${randHex}.html`);
+  await fs.writeFile(filename, contents, {encoding: 'utf-8'});
+  return filename;
 }
 
 async function main() {
@@ -107,9 +124,14 @@ async function main() {
                    .option('-o, --output [path]', 'output to file, not stdout')
                    .option('--title [string]', 'title of output HTML')
                    .parse(process.argv);
-  const node = treeFromLines(await readLines());
-  const treemapJS = await readFile(__dirname + '/../dist/webtreemap.js');
-  const treemapCSS = await readFile(__dirname + '/../src/styles-to-add.css');
+
+  const lines =
+    args.args.length > 0 ? readLinesFromFiles(args.args) : readLines();
+
+  const node = treeFromLines(await lines);
+
+  const treemapJS = await fs.readFile(__dirname + '/../dist/webtreemap.js', 'utf-8');
+  const treemapCSS = await fs.readFile(__dirname + '/../src/styles-to-add.css', 'utf-8');
   const title = args.title || 'webtreemap';
 
   let inlineScript = `
@@ -142,9 +164,11 @@ ${treemapCSS}
 </script>
 `;
   if (args.output) {
-    fs.writeFileSync(args.output, output, {encoding: 'utf-8'});
-  } else {
+    await fs.writeFile(args.output, output, {encoding: 'utf-8'});
+  } else if (!process.stdout.isTTY) {
     console.log(output);
+  } else {
+    open(await writeToTempFile(output));
   }
 }
 
