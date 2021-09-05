@@ -60,16 +60,17 @@ See [source-map-explorer].
 
 ## Options
 
-<dl>
-  <dt>`-f, --format [format]`</dt>
-  <dd>Set the output format. By default this is HTML. You may also output JSON or text, which produces a format that may be fed back into `treemap`. This is useful if you want to use one of the special inputs but edit the results before visualization.</dd>
+- `-f, --format [format]`
 
-  <dt>`-o, --output [path]`</dt>
-  <dd>Output to a file rather than opening a web browser or printing to stdout (depending on the output format). If `-o` is specified but not `-f`, then the output format will be set based on the output file name's extension.</dd>
+  Set the output format. By default this is HTML. You may also output JSON or text, which produces a format that may be fed back into `treemap`. This is useful if you want to use one of the special inputs but edit the results before visualization.
 
-  <dt>`--title [string]`</dt>
-  <dd>Set the page title for HTML output</dd>
-</dl>
+- `-o, --output [path]`
+
+  Output to a file rather than opening a web browser or printing to stdout (depending on the output format). If `-o` is specified but not `-f`, then the output format will be set based on the output file name's extension.
+
+- `--title [string]`
+
+  Set the page title for HTML output.
 
 ## Development
 
