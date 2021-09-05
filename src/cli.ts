@@ -22,7 +22,7 @@ import open from 'open';
 import * as readline from 'readline';
 import * as tmp from 'tmp';
 
-import { processJsonSpaceUsage } from './processors/json';
+import {processJsonSpaceUsage} from './processors/json';
 import * as tree from './tree';
 
 /** Reads stdin into an array of lines. */
@@ -144,8 +144,11 @@ async function main() {
     )
     .option('-o, --output [path]', 'output to file, not stdout')
     .addOption(
-      new Option('-f, --format [format]', 'Set output format')
-        .choices(['html', 'json', 'text'])
+      new Option('-f, --format [format]', 'Set output format').choices([
+        'html',
+        'json',
+        'text',
+      ])
     )
     .option('--title [string]', 'title of output HTML')
     .parse(process.argv);
@@ -157,8 +160,9 @@ async function main() {
     program.args.shift();
   }
 
-  const lines = await
-    (program.args.length > 0 ? readLinesFromFiles(program.args) : readLines());
+  const lines = await (program.args.length > 0
+    ? readLinesFromFiles(program.args)
+    : readLines());
 
   const rows = processor(lines);
   const node = treeFromRows(rows);
@@ -168,12 +172,16 @@ async function main() {
   let outputFormat = args.format as OutputFormat | undefined;
   if (!outputFormat) {
     const output = args.output as string | undefined;
-    outputFormat = output?.endsWith('.json') ? 'json' : output?.endsWith('.txt') ? 'text' : 'html';
+    outputFormat = output?.endsWith('.json')
+      ? 'json'
+      : output?.endsWith('.txt')
+      ? 'text'
+      : 'html';
   }
 
   let output: string;
   if (outputFormat === 'html') {
-  output = `<!doctype html>
+    output = `<!doctype html>
 <title>${title}</title>
 <style>
 html, body {
@@ -211,7 +219,9 @@ render();
   } else if (outputFormat === 'text') {
     output = formatText(node);
   } else {
-    throw new Error(`Unknown output format: ${outputFormat}, expected "html" or "json".`);
+    throw new Error(
+      `Unknown output format: ${outputFormat}, expected "html" or "json".`
+    );
   }
 
   if (args.output) {
