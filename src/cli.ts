@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import {Command} from 'commander';
+import {Command, Option} from 'commander';
 import {promises as fs} from 'fs';
 import open from 'open';
 import * as readline from 'readline';
@@ -119,6 +119,19 @@ async function writeToTempFile(contents: string): Promise<string> {
   return filename;
 }
 
+function formatText(rootNode: tree.Node): string {
+  const lines: string[] = [];
+  const help = (node: tree.Node, prefix: string) => {
+    const path = prefix + (node.id ?? '');
+    lines.push(`${node.size}\t${path}`);
+    node.children?.forEach(child => help(child, path + '/'));
+  };
+  help(rootNode, '');
+  return lines.join('\n');
+}
+
+type OutputFormat = 'html' | 'json' | 'text';
+
 async function main() {
   const program = new Command()
     .description(
@@ -130,7 +143,10 @@ async function main() {
 `
     )
     .option('-o, --output [path]', 'output to file, not stdout')
-    .option('-f, --format [format]', 'Set output format (HTML or JSON)')
+    .addOption(
+      new Option('-f, --format [format]', 'Set output format')
+        .choices(['html', 'json', 'text'])
+    )
     .option('--title [string]', 'title of output HTML')
     .parse(process.argv);
 
@@ -149,9 +165,10 @@ async function main() {
   const treemapJS = await fs.readFile(__dirname + '/../webtreemap.js', 'utf-8');
   const title = args.title || 'webtreemap';
 
-  let outputFormat = (args.format as string | undefined)?.toLowerCase();
+  let outputFormat = args.format as OutputFormat | undefined;
   if (!outputFormat) {
-    outputFormat = (args.output as string|undefined)?.endsWith('.json') ? 'json' : 'html';
+    const output = args.output as string | undefined;
+    outputFormat = output?.endsWith('.json') ? 'json' : output?.endsWith('.txt') ? 'text' : 'html';
   }
 
   let output: string;
@@ -191,6 +208,8 @@ render();
 `;
   } else if (outputFormat === 'json') {
     output = JSON.stringify(node, null, 2);
+  } else if (outputFormat === 'text') {
+    output = formatText(node);
   } else {
     throw new Error(`Unknown output format: ${outputFormat}, expected "html" or "json".`);
   }
