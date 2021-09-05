@@ -22,6 +22,7 @@ import open from 'open';
 import * as readline from 'readline';
 import * as tmp from 'tmp';
 
+import { processJsonSpaceUsage } from './processors/json';
 import * as tree from './tree';
 
 /** Reads stdin into an array of lines. */
@@ -69,9 +70,9 @@ function parseLine(line: string): [string, number] {
   return [line, 1];
 }
 
-/** Constructs a tree from an array of lines. */
-function treeFromLines(lines: string[]): tree.Node {
-  let node = tree.treeify(lines.map(parseLine));
+/** Constructs a tree from an array of path / size pairs. */
+function treeFromRows(rows: readonly [string, number][]): tree.Node {
+  let node = tree.treeify(rows);
 
   // If there's a common empty parent, skip it.
   if (node.id === undefined && node.children && node.children.length === 1) {
@@ -90,6 +91,10 @@ function treeFromLines(lines: string[]): tree.Node {
   tree.flatten(node);
 
   return node;
+}
+
+function processSizePathPairs(lines: readonly string[]): [string, number][] {
+  return lines.map(parseLine);
 }
 
 function humanSizeCaption(n: tree.Node): string {
@@ -125,18 +130,33 @@ async function main() {
 `
     )
     .option('-o, --output [path]', 'output to file, not stdout')
+    .option('-f, --format [format]', 'Set output format (HTML or JSON)')
     .option('--title [string]', 'title of output HTML')
     .parse(process.argv);
 
   const args = program.opts();
-  const lines =
-    program.args.length > 0 ? readLinesFromFiles(program.args) : readLines();
+  let processor = processSizePathPairs;
+  if (program.args[0] === 'json-space') {
+    processor = processJsonSpaceUsage;
+    program.args.shift();
+  }
 
-  const node = treeFromLines(await lines);
+  const lines = await
+    (program.args.length > 0 ? readLinesFromFiles(program.args) : readLines());
+
+  const rows = processor(lines);
+  const node = treeFromRows(rows);
   const treemapJS = await fs.readFile(__dirname + '/../webtreemap.js', 'utf-8');
   const title = args.title || 'webtreemap';
 
-  let output = `<!doctype html>
+  let outputFormat = (args.format as string | undefined)?.toLowerCase();
+  if (!outputFormat) {
+    outputFormat = (args.output as string|undefined)?.endsWith('.json') ? 'json' : 'html';
+  }
+
+  let output: string;
+  if (outputFormat === 'html') {
+  output = `<!doctype html>
 <title>${title}</title>
 <style>
 html, body {
@@ -169,9 +189,15 @@ window.addEventListener('resize', render);
 render();
 </script>
 `;
+  } else if (outputFormat === 'json') {
+    output = JSON.stringify(node, null, 2);
+  } else {
+    throw new Error(`Unknown output format: ${outputFormat}, expected "html" or "json".`);
+  }
+
   if (args.output) {
     await fs.writeFile(args.output, output, {encoding: 'utf-8'});
-  } else if (!process.stdout.isTTY) {
+  } else if (!process.stdout.isTTY || outputFormat !== 'html') {
     console.log(output);
   } else {
     open(await writeToTempFile(output));
