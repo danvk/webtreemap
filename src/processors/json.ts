@@ -85,7 +85,7 @@ function parseValue(tok: moo.Token, lex: moo.Lexer): void {
   ) {
     // no-op
   } else {
-    throw new Error(`a Unexpected token ${tok.type}`);
+    throw new Error(`a Unexpected token ${tok.type} @ ${lex.index}`);
   }
 }
 
@@ -93,16 +93,20 @@ function parseArray(lex: moo.Lexer): void {
   let tok = nextSkipWhitepace(lex);
   for (;;) {
     pushPath('*', tok.offset);
-    parseValue(tok, lex);
-    popPath(lex.index - 1);
-    tok = nextSkipWhitepace(lex);
+    if (tok.type !== ']') {
+      parseValue(tok, lex);
+      popPath(lex.index - 1);
+      tok = nextSkipWhitepace(lex);
+    } else {
+      popPath(lex.index - 1);
+    }
     if (tok.type === ']') {
       break;
     } else if (tok.type === ',') {
       tok = nextSkipWhitepace(lex);
       continue;
     } else {
-      throw new Error(`b Unexpected token ${tok.type}`);
+      throw new Error(`b Unexpected token ${tok.type} @ ${lex.index}`);
     }
   }
 }
@@ -110,8 +114,11 @@ function parseArray(lex: moo.Lexer): void {
 function parseObject(lex: moo.Lexer): void {
   let tok = nextSkipWhitepace(lex);
   for (;;) {
+    if (tok.type === '}') {
+      break;
+    }
     if (tok.type !== 'STRING') {
-      throw new Error(`c Unexpected token ${tok.type}`);
+      throw new Error(`c Unexpected token ${tok.type} @ ${lex.index}`);
     }
     const key = tok.value.slice(1, -1); // strip quotes
     addToken('<keys>', tok.offset, tok.text.length);
