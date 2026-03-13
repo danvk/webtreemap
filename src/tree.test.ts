@@ -66,10 +66,7 @@ describe('rollup', () => {
   it('sets parent size to sum of children when parent size is 0', () => {
     const n: Node = {
       size: 0,
-      children: [
-        {size: 3},
-        {size: 7},
-      ],
+      children: [{size: 3}, {size: 7}],
     };
     rollup(n);
     expect(n.size).toBe(10);
@@ -78,10 +75,7 @@ describe('rollup', () => {
   it('keeps parent size when it already exceeds children sum', () => {
     const n: Node = {
       size: 20,
-      children: [
-        {size: 3},
-        {size: 7},
-      ],
+      children: [{size: 3}, {size: 7}],
     };
     rollup(n);
     expect(n.size).toBe(20);
@@ -107,11 +101,7 @@ describe('sort', () => {
   it('sorts children by size descending', () => {
     const n: Node = {
       size: 30,
-      children: [
-        {size: 5},
-        {size: 20},
-        {size: 10},
-      ],
+      children: [{size: 5}, {size: 20}, {size: 10}],
     };
     sort(n);
     expect(n.children!.map(c => c.size)).toEqual([20, 10, 5]);

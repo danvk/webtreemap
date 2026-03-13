@@ -34,6 +34,7 @@
   "scripts": {
     "test": "jest",
     "fmt": "prettier --write src/*.ts *.md",
+    "fmt:check": "prettier --check src/*.ts *.md",
     "build": "tsc && webpack --mode=production",
     "type-check": "tsc --noEmit",
     "watch": "concurrently 'tsc --watch' 'webpack --watch --mode=development'",
