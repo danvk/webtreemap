@@ -74,19 +74,23 @@ See [source-map-explorer].
 
 ## Development
 
+Setup:
+
+    npm i
+
 Run:
 
-    yarn build
-    yarn demo
+    npm run build
+    npm run demo
 
 Develop:
 
-    yarn watch
-    yarn demo
+    npm run watch
+    npm run demo
 
 Format code:
 
-    yarn fmt
+    npm run fmt
 
 ## Credits
 
