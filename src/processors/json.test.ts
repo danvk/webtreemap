@@ -78,4 +78,9 @@ describe('processJsonSpaceUsage', () => {
     const data = await withTempJson('[]');
     expect(data).toMatchInlineSnapshot();
   })
+
+  it('should not crash on nested empty arrays', async () => {
+    const data = await withTempJson('{"a": [], "b": []}');
+    expect(data).toMatchInlineSnapshot();
+  })
 });
