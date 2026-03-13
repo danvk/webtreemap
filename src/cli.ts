@@ -121,6 +121,7 @@ async function main() {
       ])
     )
     .option('--title <string>', 'title of output HTML', String)
+    .argument('[args...]')
     .parse(process.argv);
 
   const args = program.opts();
