@@ -8,25 +8,35 @@
     "treemap": "build/cli.js"
   },
   "dependencies": {
-    "commander": "^8.1.0",
+    "@commander-js/extra-typings": "^14.0.0",
+    "commander": "^14.0.3",
     "moo": "^0.5.1",
-    "open": "^7.2.1",
+    "open": "^11.0.0",
     "tmp": "^0.2.1"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/moo": "^0.5.5",
-    "@types/node": "^14.6.4",
+    "@types/node": "^25.5.0",
     "@types/tmp": "^0.2.0",
     "concurrently": "^6.2.1",
-    "prettier": "^2.3.2",
-    "typescript": "^4.4.2",
-    "webpack": "^5.52.0",
-    "webpack-cli": "^4.8.0"
+    "jest": "^30.3.0",
+    "prettier": "^3.8.1",
+    "ts-jest": "^29.4.6",
+    "typescript": "^5.9.3",
+    "webpack": "^5.105.4",
+    "webpack-cli": "^6.0.1"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "fmt": "prettier --write src/*.ts *.md",
+    "fmt:check": "prettier --check src/*.ts *.md",
     "build": "tsc && webpack --mode=production",
+    "type-check": "tsc --noEmit",
     "watch": "concurrently 'tsc --watch' 'webpack --watch --mode=development'",
     "demo": "node build/cli.js du .",
     "demo:tsc": "tsc --listFiles | node build/cli.js --title 'tsc --listFiles'",
