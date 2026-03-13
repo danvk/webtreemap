@@ -35,7 +35,7 @@ const DEFAULT_CSS = `
 }
 
 .webtreemap-caption {
-  font-size: 10px;
+  font-size: 12px;
   text-align: center;
 }
 `;
