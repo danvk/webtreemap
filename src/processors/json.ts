@@ -35,8 +35,13 @@ interface FileSizeMap {
   [path: string]: number;
 }
 
-const path: Segment[] = [];
-const sizes: FileSizeMap = {};
+let path: Segment[] = [];
+let sizes: FileSizeMap = {};
+
+function resetState() {
+  path = [];
+  sizes = {};
+}
 
 function pushPath(key: string, pos?: number): void {
   pos = pos === undefined ? lexer.index : pos;
@@ -166,7 +171,9 @@ export function getJsonSpaceUsageFromStr(jsonText: string) {
   lexer.reset(jsonText);
   parseValue(nextSkipWhitepace(lexer), lexer);
   leafify(sizes);
-  return Object.entries(sizes);
+  const map = Object.entries(sizes);
+  resetState();
+  return map;
 }
 
 export const processJsonSpaceUsage: ProcessorFn = async args => {

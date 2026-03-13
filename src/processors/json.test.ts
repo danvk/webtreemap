@@ -55,14 +55,25 @@ describe('getJsonSpaceUsageFromStr', () => {
     expect(large['b']).toBeGreaterThan(small['b']);
   });
 
-  it('does not crash on empty arrays', () => {
-    expect(() => parse('[]')).not.toThrow();
+  it('should not crash on empty arrays', () => {
+    const data = parse('[]');
+    expect(data).toMatchInlineSnapshot(`
+     {
+       "*": 1,
+     }
+    `);
   });
 
   it('does not crash on nested empty arrays', () => {
-    expect(() => parse('{"a": [], "b": []}')).not.toThrow();
     const map = parse('{"a": [], "b": []}');
-    expect(map).toHaveProperty('a');
-    expect(map).toHaveProperty('b');
+    expect(map).toMatchInlineSnapshot(`
+     {
+       "<keys>": 6,
+       "a": 1,
+       "a/*": 1,
+       "b": 1,
+       "b/*": 1,
+     }
+    `);
   });
 });
