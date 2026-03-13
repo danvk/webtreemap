@@ -73,4 +73,9 @@ describe('processJsonSpaceUsage', () => {
     const largeMap = Object.fromEntries(large);
     expect(largeMap['b']).toBeGreaterThan(smallMap['b']);
   });
+
+  it('should not crash on empty arrays', async () => {
+    const data = await withTempJson('[]');
+    expect(data).toMatchInlineSnapshot();
+  })
 });
