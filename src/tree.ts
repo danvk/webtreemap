@@ -75,7 +75,7 @@ export function flatten(
     }
     if (n.children.length === 1) {
       const child = n.children[0];
-      n.id += '/' + child.id;
+      n.id = join(n.id ?? '', child.id ?? '');
       n.children = child.children;
     }
   }
