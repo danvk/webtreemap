@@ -1,6 +1,6 @@
 {
   "name": "webtreemap-cli",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "treemap visualization",
   "main": "build/index.js",
   "bin": {
