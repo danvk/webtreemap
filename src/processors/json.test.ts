@@ -1,16 +1,7 @@
-import {promises as fs} from 'fs';
-import * as os from 'os';
-import * as path from 'path';
-import {leafify, processJsonSpaceUsage} from './json';
+import {getJsonSpaceUsageFromStr, leafify} from './json';
 
-async function withTempJson(content: string): Promise<[string, number][]> {
-  const file = path.join(os.tmpdir(), `json-test-${Date.now()}.json`);
-  await fs.writeFile(file, content, 'utf-8');
-  try {
-    return await processJsonSpaceUsage([file]);
-  } finally {
-    await fs.unlink(file);
-  }
+function parse(json: string): Record<string, number> {
+  return Object.fromEntries(getJsonSpaceUsageFromStr(json));
 }
 
 describe('leafify', () => {
@@ -21,7 +12,7 @@ describe('leafify', () => {
   });
 
   it('subtracts child sizes from parent', () => {
-    const counts = {'a': 100, 'a/b': 40, 'a/c': 30};
+    const counts = {a: 100, 'a/b': 40, 'a/c': 30};
     const result = leafify(counts);
     expect(result['a']).toBe(30); // 100 - 40 - 30
     expect(result['a/b']).toBe(40);
@@ -29,7 +20,7 @@ describe('leafify', () => {
   });
 
   it('handles deeply nested paths', () => {
-    const counts = {'a': 100, 'a/b': 60, 'a/b/c': 60};
+    const counts = {a: 100, 'a/b': 60, 'a/b/c': 60};
     const result = leafify(counts);
     expect(result['a']).toBe(40); // 100 - 60
     expect(result['a/b']).toBe(0); // 60 - 60
@@ -37,40 +28,52 @@ describe('leafify', () => {
   });
 });
 
-describe('processJsonSpaceUsage', () => {
-  it('returns size entries for a flat object', async () => {
-    const rows = await withTempJson('{"a": 1, "b": 2}');
-    const map = Object.fromEntries(rows);
-    // Both keys should appear
+describe('getJsonSpaceUsageFromStr', () => {
+  it('returns size entries for a flat object', () => {
+    const map = parse('{"a": 1, "b": 2}');
     expect(map).toHaveProperty('a');
     expect(map).toHaveProperty('b');
-    // Sizes should be positive
     expect(map['a']).toBeGreaterThan(0);
     expect(map['b']).toBeGreaterThan(0);
   });
 
-  it('returns size entries for a nested object', async () => {
-    const rows = await withTempJson('{"outer": {"inner": 42}}');
-    const map = Object.fromEntries(rows);
+  it('returns size entries for a nested object', () => {
+    const map = parse('{"outer": {"inner": 42}}');
     expect(map).toHaveProperty('outer/inner');
     expect(map['outer/inner']).toBeGreaterThan(0);
   });
 
-  it('returns size entries for an array', async () => {
-    const rows = await withTempJson('[1, 2, 3]');
-    const map = Object.fromEntries(rows);
-    // Array elements are keyed as '*'
+  it('returns size entries for an array', () => {
+    const map = parse('[1, 2, 3]');
     expect(map).toHaveProperty('*');
     expect(map['*']).toBeGreaterThan(0);
   });
 
-  it('assigns larger size to a key with more content', async () => {
-    const small = await withTempJson('{"a": 1, "b": 1}');
-    const large = await withTempJson(
-      '{"a": 1, "b": "' + 'x'.repeat(1000) + '"}'
-    );
-    const smallMap = Object.fromEntries(small);
-    const largeMap = Object.fromEntries(large);
-    expect(largeMap['b']).toBeGreaterThan(smallMap['b']);
+  it('assigns larger size to a key with more content', () => {
+    const small = parse('{"a": 1, "b": 1}');
+    const large = parse('{"a": 1, "b": "' + 'x'.repeat(1000) + '"}');
+    expect(large['b']).toBeGreaterThan(small['b']);
+  });
+
+  it('should not crash on empty arrays', () => {
+    const data = parse('[]');
+    expect(data).toMatchInlineSnapshot(`
+     {
+       "*": 1,
+     }
+    `);
+  });
+
+  it('does not crash on nested empty arrays', () => {
+    const map = parse('{"a": [], "b": []}');
+    expect(map).toMatchInlineSnapshot(`
+     {
+       "<keys>": 6,
+       "a": 1,
+       "a/*": 1,
+       "b": 1,
+       "b/*": 1,
+     }
+    `);
   });
 });

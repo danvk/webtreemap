@@ -35,8 +35,13 @@ interface FileSizeMap {
   [path: string]: number;
 }
 
-const path: Segment[] = [];
-const sizes: FileSizeMap = {};
+let path: Segment[] = [];
+let sizes: FileSizeMap = {};
+
+function resetState() {
+  path = [];
+  sizes = {};
+}
 
 function pushPath(key: string, pos?: number): void {
   pos = pos === undefined ? lexer.index : pos;
@@ -85,7 +90,7 @@ function parseValue(tok: moo.Token, lex: moo.Lexer): void {
   ) {
     // no-op
   } else {
-    throw new Error(`a Unexpected token ${tok.type}`);
+    throw new Error(`a Unexpected token ${tok.type} @ ${lex.index}`);
   }
 }
 
@@ -93,16 +98,20 @@ function parseArray(lex: moo.Lexer): void {
   let tok = nextSkipWhitepace(lex);
   for (;;) {
     pushPath('*', tok.offset);
-    parseValue(tok, lex);
-    popPath(lex.index - 1);
-    tok = nextSkipWhitepace(lex);
+    if (tok.type !== ']') {
+      parseValue(tok, lex);
+      popPath(lex.index - 1);
+      tok = nextSkipWhitepace(lex);
+    } else {
+      popPath(lex.index - 1);
+    }
     if (tok.type === ']') {
       break;
     } else if (tok.type === ',') {
       tok = nextSkipWhitepace(lex);
       continue;
     } else {
-      throw new Error(`b Unexpected token ${tok.type}`);
+      throw new Error(`b Unexpected token ${tok.type} @ ${lex.index}`);
     }
   }
 }
@@ -110,8 +119,11 @@ function parseArray(lex: moo.Lexer): void {
 function parseObject(lex: moo.Lexer): void {
   let tok = nextSkipWhitepace(lex);
   for (;;) {
+    if (tok.type === '}') {
+      break;
+    }
     if (tok.type !== 'STRING') {
-      throw new Error(`c Unexpected token ${tok.type}`);
+      throw new Error(`c Unexpected token ${tok.type} @ ${lex.index}`);
     }
     const key = tok.value.slice(1, -1); // strip quotes
     addToken('<keys>', tok.offset, tok.text.length);
@@ -155,10 +167,16 @@ export function leafify(counts: FileSizeMap): FileSizeMap {
   return counts;
 }
 
-export const processJsonSpaceUsage: ProcessorFn = async args => {
-  const text = await collectInputFromArgs(args);
-  lexer.reset(text);
+export function getJsonSpaceUsageFromStr(jsonText: string) {
+  lexer.reset(jsonText);
   parseValue(nextSkipWhitepace(lexer), lexer);
   leafify(sizes);
-  return Object.entries(sizes);
+  const map = Object.entries(sizes);
+  resetState();
+  return map;
+}
+
+export const processJsonSpaceUsage: ProcessorFn = async args => {
+  const text = await collectInputFromArgs(args);
+  return getJsonSpaceUsageFromStr(text);
 }
