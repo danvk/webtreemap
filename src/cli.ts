@@ -19,11 +19,11 @@
 import {Command, Option} from 'commander';
 import {promises as fs} from 'fs';
 import open from 'open';
-import { processDir } from './processors/du';
+import {processDir} from './processors/du';
 
 import {processJsonSpaceUsage} from './processors/json';
 import * as tree from './tree';
-import { collectInputFromArgs, ProcessorFn, writeToTempFile } from './util';
+import {collectInputFromArgs, ProcessorFn, writeToTempFile} from './util';
 
 function parseLine(line: string): [string, number] {
   if (line.match(/^\s*$/)) {
@@ -72,7 +72,7 @@ function treeFromRows(rows: readonly [string, number][]): tree.Node {
 const processSizePathPairs: ProcessorFn = async args => {
   const text = await collectInputFromArgs(args);
   return text.split('\n').map(parseLine);
-}
+};
 
 function humanSizeCaption(n: tree.Node): string {
   let units = ['', 'k', 'm', 'g'];
@@ -145,8 +145,8 @@ async function main() {
     outputFormat = output?.endsWith('.json')
       ? 'json'
       : output?.endsWith('.txt')
-      ? 'text'
-      : 'html';
+        ? 'text'
+        : 'html';
   }
 
   let output: string;

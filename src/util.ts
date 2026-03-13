@@ -35,10 +35,12 @@ export async function readFromStdin() {
   });
 }
 
-export async function collectInputFromArgs(args: readonly string[]): Promise<string> {
-  return args.length > 0
-    ? readFromFiles(args)
-    : readFromStdin();
+export async function collectInputFromArgs(
+  args: readonly string[]
+): Promise<string> {
+  return args.length > 0 ? readFromFiles(args) : readFromStdin();
 }
 
-export type ProcessorFn = (args: readonly string[]) => Promise<[string, number][]>;
+export type ProcessorFn = (
+  args: readonly string[]
+) => Promise<[string, number][]>;
