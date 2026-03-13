@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import {Command, Option} from 'commander';
+import {Command, Option} from '@commander-js/extra-typings';
 import {promises as fs} from 'fs';
 import open from 'open';
 import {processDir} from './processors/du';
@@ -112,7 +112,7 @@ async function main() {
   lines from stdin, splits path on '/' and outputs HTML for a treemap.
 `
     )
-    .option('-o, --output [path]', 'output to file, not stdout')
+    .option('-o, --output <string>', 'output to file, not stdout', String)
     .addOption(
       new Option('-f, --format [format]', 'Set output format').choices([
         'html',
@@ -120,7 +120,7 @@ async function main() {
         'text',
       ])
     )
-    .option('--title [string]', 'title of output HTML')
+    .option('--title <string>', 'title of output HTML', String)
     .parse(process.argv);
 
   const args = program.opts();
@@ -141,7 +141,7 @@ async function main() {
 
   let outputFormat = args.format as OutputFormat | undefined;
   if (!outputFormat) {
-    const output = args.output as string | undefined;
+    const {output} = args;
     outputFormat = output?.endsWith('.json')
       ? 'json'
       : output?.endsWith('.txt')
