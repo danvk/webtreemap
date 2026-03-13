@@ -21,7 +21,7 @@ describe('leafify', () => {
   });
 
   it('subtracts child sizes from parent', () => {
-    const counts = {'a': 100, 'a/b': 40, 'a/c': 30};
+    const counts = {a: 100, 'a/b': 40, 'a/c': 30};
     const result = leafify(counts);
     expect(result['a']).toBe(30); // 100 - 40 - 30
     expect(result['a/b']).toBe(40);
@@ -29,7 +29,7 @@ describe('leafify', () => {
   });
 
   it('handles deeply nested paths', () => {
-    const counts = {'a': 100, 'a/b': 60, 'a/b/c': 60};
+    const counts = {a: 100, 'a/b': 60, 'a/b/c': 60};
     const result = leafify(counts);
     expect(result['a']).toBe(40); // 100 - 60
     expect(result['a/b']).toBe(0); // 60 - 60
@@ -76,11 +76,81 @@ describe('processJsonSpaceUsage', () => {
 
   it('should not crash on empty arrays', async () => {
     const data = await withTempJson('[]');
-    expect(data).toMatchInlineSnapshot();
-  })
+    expect(data).toMatchInlineSnapshot(`
+     [
+       [
+         "<keys>",
+         25,
+       ],
+       [
+         "a",
+         3,
+       ],
+       [
+         "b",
+         1004,
+       ],
+       [
+         "outer/<keys>",
+         7,
+       ],
+       [
+         "outer/inner",
+         2,
+       ],
+       [
+         "outer",
+         -32,
+       ],
+       [
+         "*",
+         4,
+       ],
+     ]
+    `);
+  });
 
   it('should not crash on nested empty arrays', async () => {
     const data = await withTempJson('{"a": [], "b": []}');
-    expect(data).toMatchInlineSnapshot();
-  })
+    expect(data).toMatchInlineSnapshot(`
+     [
+       [
+         "<keys>",
+         31,
+       ],
+       [
+         "a",
+         4,
+       ],
+       [
+         "b",
+         1005,
+       ],
+       [
+         "outer/<keys>",
+         7,
+       ],
+       [
+         "outer/inner",
+         2,
+       ],
+       [
+         "outer",
+         -41,
+       ],
+       [
+         "*",
+         4,
+       ],
+       [
+         "a/*",
+         1,
+       ],
+       [
+         "b/*",
+         1,
+       ],
+     ]
+    `);
+  });
 });

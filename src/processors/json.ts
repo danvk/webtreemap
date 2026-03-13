@@ -162,10 +162,14 @@ export function leafify(counts: FileSizeMap): FileSizeMap {
   return counts;
 }
 
-export const processJsonSpaceUsage: ProcessorFn = async args => {
-  const text = await collectInputFromArgs(args);
-  lexer.reset(text);
+export function getJsonSpaceUsageFromStr(jsonText: string) {
+  lexer.reset(jsonText);
   parseValue(nextSkipWhitepace(lexer), lexer);
   leafify(sizes);
   return Object.entries(sizes);
+}
+
+export const processJsonSpaceUsage: ProcessorFn = async args => {
+  const text = await collectInputFromArgs(args);
+  return getJsonSpaceUsageFromStr(text);
 }
