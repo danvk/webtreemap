@@ -123,7 +123,10 @@ function defaultOptions(options: Partial<Options>): Options {
 
 export class TreeMap {
   readonly options: Options;
-  constructor(public node: Node, options: Partial<Options>) {
+  constructor(
+    public node: Node,
+    options: Partial<Options>
+  ) {
     this.options = defaultOptions(options);
   }
 
